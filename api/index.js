@@ -27,7 +27,7 @@ connectDB();
  * Mount the API routes.
  * All feature routes are grouped under `/api/v1`.
  */
-app.use("/api/v1", routes);
+app.use("/api", routes);
 
 /**
  * Health check endpoint.
