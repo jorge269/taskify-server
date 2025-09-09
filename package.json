@@ -1,0 +1,19 @@
+{
+  "name": "miniproyecto-1",
+  "version": "1.0.0",
+  "description": "Diseñar, implementar y desplegar una aplicación web full-stack para la gestión personal de tareas. El sistema debe permitir a cualquier usuario registrarse, autenticarse y administrar sus tareas (crear, editar, eliminar) de manera sencilla, segura y desde cualquier dispositivo.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node api/index.js",
+    "dev": "node --watch api/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.1"
+  }
+}
