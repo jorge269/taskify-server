@@ -5,7 +5,13 @@ const TaskSchema = new mongoose.Schema(
     title: { type: String, required: true },
     description: { type: String},
     date: { type: Date, required: true},
-    status: {type: String, enum: ['done', 'doing', 'to do'], default: 'to do'}, },
+    status: {type: String, enum: ['done', 'doing', 'to do'], default: 'to do'},
+    userId: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User', 
+      required: true 
+    }
+  },
   { timestamps: true }
 );
 
