@@ -48,4 +48,11 @@ router.delete("/:id", (req, res) => UserController.delete(req, res));
 /**
  * Export the router instance to be mounted in the main routes file.
  */
+
+// route for the login
+router.post("/login", (req, res) => UserController.login(req, res));
+
+// route for the register
+router.post("/register", (req, res)=> UserController.create(req, res));
+
 module.exports = router;

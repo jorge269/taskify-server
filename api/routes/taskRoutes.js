@@ -49,6 +49,12 @@ router.put("/:id", (req, res) => TaskController.update(req, res));
  */
 router.delete("/:id", (req, res) => TaskController.delete(req, res));
 
+
+router.post("/addTask", (req, res) => TaskController.create(req, res));
+
+router.get("/userTask/:userId", (req, res) => TaskController.readByUser(req, res));
+
+
 /**
  * Export the router instance to be mounted in the main routes file.
  */
