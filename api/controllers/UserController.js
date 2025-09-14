@@ -45,7 +45,7 @@ class UserController extends GlobalController {
             res.status(200).json({
                 message: "Login successful",
                 user: {
-                    id: user._id || user.id,
+                    id: newUser._id || newUser.id,
                     email: user.email,
                     firstName: user.firstName,
                     lastName: user.lastName
@@ -63,13 +63,16 @@ class UserController extends GlobalController {
     register = async (req, res) => {
         try {
             const { name, lastName, age, email, password } = req.body;
-            const users = await this.dao.getAll({ email });
 
-            if (users.find(u => u.email === email)) {
+            const users = await this.dao.getAll();
+            const existingUser = users.find(u => u.email === email);
+
+            if (existingUser) {
                 return res.status(409).json({
                     message: "The email provided is already registered"
-                })
+                });
             }
+
 
             const newUser = await this.dao.create({
                 name,
@@ -82,12 +85,17 @@ class UserController extends GlobalController {
             res.status(201).json({
                 message: "The user has been sucessfully registered",
                 newUser: {
-                    id: newUser.id
+                    id: newUser._id || newUser.id
                 }
             })
         }
         catch (error) {
-            console.error("Register error:", error);
+            // console.error("Register error:", error);
+            if (error.code === 11000 || error.message.includes('E11000')) {
+                return res.status(409).json({
+                    message: "The email provided is already registered"
+                });
+            }
             res.status(500).json({
                 message: "Internal server error"
             });
