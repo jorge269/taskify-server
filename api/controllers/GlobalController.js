@@ -87,6 +87,18 @@ class GlobalController {
         }
     }
 
+    async readByUser(req, res) {
+    try {
+            const item = await this.dao.getAll({ userId: req.params.userId });
+            res.status(200).json(item);
+        } catch (error) {
+            res.status(404).json({ message: error.message });
+            console.log("no funciona")
+        }
+    }
+
 }
+
+
 
 module.exports = GlobalController;
