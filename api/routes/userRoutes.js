@@ -53,6 +53,6 @@ router.delete("/:id", (req, res) => UserController.delete(req, res));
 router.post("/login", (req, res) => UserController.login(req, res));
 
 // route for the register
-router.post("/register", (req, res)=> UserController.create(req, res));
+router.post("/register", (req, res)=> UserController.register(req, res));
 
 module.exports = router;

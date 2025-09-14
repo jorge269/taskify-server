@@ -34,7 +34,7 @@ class UserController extends GlobalController {
             // Assuming UserDAO has a method to find by criteria
             const users = await this.dao.getAll({ email, password });
             const user = users.find(u => u.email === email && u.password === password);
-            
+
             if (!user) {
                 return res.status(401).json({
                     message: "Invalid email or password"
@@ -59,6 +59,41 @@ class UserController extends GlobalController {
             });
         }
     };
+
+    register = async (req, res) => {
+        try {
+            const { name, lastName, age, email, password } = req.body;
+            const users = await this.dao.getAll({ email });
+
+            if (users.find(u => u.email === email)) {
+                return res.status(409).json({
+                    message: "The email provided is already registered"
+                })
+            }
+
+            const newUser = await this.dao.create({
+                name,
+                lastName,
+                age,
+                email,
+                password
+            });
+
+            res.status(201).json({
+                message: "The user has been sucessfully registered",
+                newUser: {
+                    id: newUser.id
+                }
+            })
+        }
+        catch (error) {
+            console.error("Register error:", error);
+            res.status(500).json({
+                message: "Internal server error"
+            });
+        }
+    };
+
 }
 
 /**
