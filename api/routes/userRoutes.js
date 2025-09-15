@@ -27,6 +27,9 @@ router.get("/:id", (req, res) => UserController.read(req, res));
  */
 router.post("/", (req, res) => UserController.create(req, res));
 
+router.put("/changePassword", (req, res)=> UserController.changePassword(req, res));
+
+
 /**
  * @route PUT /users/:id
  * @description Update an existing user by ID.
@@ -36,6 +39,15 @@ router.post("/", (req, res) => UserController.create(req, res));
  * @access Public
  */
 router.put("/:id", (req, res) => UserController.update(req, res));
+
+/**
+ * @route PUT /users/:id
+ * @description Update an existing user by ID.
+ * @param {string} id - The unique identifier of the user.
+ * @body {string} [password] - Updated password (optional).
+ * @access Public
+ */
+router.put("changePasword/:id", (req, res) => UserController.update(req, res));
 
 /**
  * @route DELETE /users/:id
@@ -48,4 +60,28 @@ router.delete("/:id", (req, res) => UserController.delete(req, res));
 /**
  * Export the router instance to be mounted in the main routes file.
  */
+
+/**
+ * @route Post /users/login
+ * @description login by email and password.
+ * @param {string} email - The email of the user.
+ * @param {string} password - The password of the user.
+ * @access Public
+ */
+router.post("/login", (req, res) => UserController.login(req, res));
+
+/**
+ * @route Post /users/login
+ * @description sing up 
+ * @param {string} email - The email of the user.
+ * @param {string} password - The password of the user.
+ * @param {int} age 
+ * @param {string} name 
+ * @param {string} lastName 
+ * @access Public
+ */
+router.post("/register", (req, res)=> UserController.register(req, res));
+
+router.post("/recover", (req, res) => UserController.requestPasswordReset(req,res)); 
+
 module.exports = router;
