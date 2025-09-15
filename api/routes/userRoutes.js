@@ -27,6 +27,9 @@ router.get("/:id", (req, res) => UserController.read(req, res));
  */
 router.post("/", (req, res) => UserController.create(req, res));
 
+router.put("/changePassword", (req, res)=> UserController.changePassword(req, res));
+
+
 /**
  * @route PUT /users/:id
  * @description Update an existing user by ID.
@@ -54,5 +57,7 @@ router.post("/login", (req, res) => UserController.login(req, res));
 
 // route for the register
 router.post("/register", (req, res)=> UserController.register(req, res));
+
+router.post("/recover", (req, res) => UserController.requestPasswordReset(req,res)); 
 
 module.exports = router;
