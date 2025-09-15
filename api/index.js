@@ -24,7 +24,9 @@ app.use(cors({
         'http://localhost:5173',  // Vite default port
         'http://localhost:8080'   // If you're using this port
     ],
-    credentials: true  // Allow cookies to be sent
+    credentials: true,  // Allow cookies to be sent
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 /**
