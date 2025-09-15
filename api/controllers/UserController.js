@@ -135,8 +135,8 @@ class UserController extends GlobalController {
 
         // Always return success for security (don't reveal if email exists)
         if (!user) {
-            return res.status(200).json({
-                message: "If an account with that email exists, we've sent a password reset link."
+            return res.status(404).json({
+                message: "El correo no está registrado"
             });
         }
 
