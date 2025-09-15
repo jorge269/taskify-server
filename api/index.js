@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require('cookie-parser')
 require("dotenv").config();
 
 const cors = require("cors");
@@ -14,8 +15,17 @@ const app = express();
  * - Enable Cross-Origin Resource Sharing (CORS)
  */
 app.use(express.json());
+app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));
-app.use(cors())
+app.use(cors({
+    origin: [
+        'http://localhost:3000',
+        'https://taskify-client-tan.vercel.app',  // Your frontend URL
+        'http://localhost:5173',  // Vite default port
+        'http://localhost:8080'   // If you're using this port
+    ],
+    credentials: true  // Allow cookies to be sent
+}));
 
 /**
  * Initialize database connection.
