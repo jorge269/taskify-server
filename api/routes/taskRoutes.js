@@ -29,6 +29,7 @@ router.get("/:id", (req, res) => TaskController.read(req, res));
  */
 router.post("/", (req, res) => TaskController.create(req, res));
 
+router.put("/editTask/:id", (req, res) => TaskController.editTask(req, res));
 /**
  * @route PUT /tasks/:id
  * @description Update an existing task by ID.
