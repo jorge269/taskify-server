@@ -29,6 +29,7 @@ router.get("/:id", (req, res) => TaskController.read(req, res));
  */
 router.post("/", (req, res) => TaskController.create(req, res));
 
+router.put("/editTask/:id", (req, res) => TaskController.editTask(req, res));
 /**
  * @route PUT /tasks/:id
  * @description Update an existing task by ID.
@@ -49,9 +50,19 @@ router.put("/:id", (req, res) => TaskController.update(req, res));
  */
 router.delete("/:id", (req, res) => TaskController.delete(req, res));
 
-
+/**
+ * @route  /tasks/:id
+ * @description add a task .
+ * @access Public
+ */
 router.post("/addTask", (req, res) => TaskController.create(req, res));
 
+/**
+ * @route get /tasks/userTask/:id
+ * @description Get a task by ID user.
+ * @param {string} id - The unique identifier of the task.
+ * @access Public
+ */
 router.get("/userTask/:userId", (req, res) => TaskController.readByUser(req, res));
 
 /**
