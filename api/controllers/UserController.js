@@ -51,7 +51,7 @@ class UserController extends GlobalController {
 
             const token = jwt.sign(
                 {
-                    id: user.id,
+                    id: user.id || user._id,
                     email: user.email
                 },
                 process.env.JWT_SECRET,
@@ -121,107 +121,182 @@ class UserController extends GlobalController {
     };
 
     requestPasswordReset = async (req, res) => {
-    try {
-        const { email } = req.body;
+        try {
+            const { email } = req.body;
 
-        if (!email) {
-            return res.status(400).json({
-                message: "Email is required"
+            if (!email) {
+                return res.status(400).json({
+                    message: "Email is required"
+                });
+            }
+
+            const users = await this.dao.getAll();
+            const user = users.find(u => u.email === email);
+
+            // Always return success for security (don't reveal if email exists)
+            if (!user) {
+                return res.status(404).json({
+                    message: "El correo no está registrado"
+                });
+            }
+
+            // Generate secure reset token
+            const resetToken = crypto.randomBytes(32).toString('hex');
+            const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour
+
+            // Save token to user (you'll need to add these fields to your user schema)
+            await this.dao.update(user.id, {
+                resetPasswordToken: resetToken,
+                resetPasswordExpires: resetTokenExpiry
+            });
+
+            // Send email
+            const emailResult = await sendPasswordResetEmail(email, resetToken);
+
+            if (!emailResult.success) {
+                console.error('Failed to send reset email:', emailResult.error);
+                return res.status(500).json({
+                    message: "Error sending email. Please try again later."
+                });
+            }
+
+            res.status(200).json({
+                message: "The link for the recover password has been sent"
+            });
+
+        } catch (error) {
+            console.error("Password reset request error:", error);
+            res.status(500).json({
+                message: "Internal server error"
             });
         }
+    };
+    // ...existing code...
+    changePassword = async (req, res) => {
+        try {
+            const { token, newPassword } = req.body;
+            const users = await this.dao.getAll();
 
-        const users = await this.dao.getAll();
-        const user = users.find(u => u.email === email);
+            console.log("Received token:", token);
+            console.log("User:", users.filter(u => u.resetPasswordToken == token))
+            const user = users.find(u =>
+                u.resetPasswordToken === token && new Date(u.resetPasswordExpires) > new Date()
+            );
 
-        // Always return success for security (don't reveal if email exists)
-        if (!user) {
-            return res.status(404).json({
-                message: "El correo no está registrado"
+            // Find user by reset token
+            if (!user) {
+                return res.status(400).json({
+                    message: "Invalid or expired reset token"
+                });
+            }
+
+            if (
+                newPassword.length < 8 ||
+                !/[A-Z]/.test(newPassword) ||
+                !/[0-9]/.test(newPassword) ||
+                !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)
+            ) {
+                return res.status(400).json({
+                    message: "La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial."
+                });
+            }
+
+            // Hash new password
+            const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+            // Update user password and clear reset token
+            await this.dao.update(user._id, {
+                password: hashedPassword,
+                resetPasswordToken: null,
+                resetPasswordExpires: null
+            });
+
+            res.status(200).json({
+                message: "Password has been reset successfully"
+            });
+
+        } catch (error) {
+            console.error("Password reset error:", error);
+            res.status(500).json({
+                message: "Internal server error"
             });
         }
+    };
 
-        // Generate secure reset token
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour
+    editMyInfo = async (req, res) => {
+        try {
+                        const token = req.cookies.authToken; 
 
-        // Save token to user (you'll need to add these fields to your user schema)
-        await this.dao.update(user.id, {
-            resetPasswordToken: resetToken,
-            resetPasswordExpires: resetTokenExpiry
+            const { name, lastName, age, email} = req.body
+            // const token = req.cookies.authToken;
+            const user = decodeJWT(token)
+
+        if (!token){
+return res.status(401).json({ 
+                message: 'Access token required' 
+            });        }
+
+            if(!name || !lastName) {
+                return res.status(404).json({ 
+                message: 'Fill all the fields' 
+            });
+            }
+
+            const updatedUser = await this.dao.update( user.id, {
+                name: name, lastName: lastName, age: age, email: email
+            })
+
+res.status(200).json({
+            message: "User has been successfully updated",
+            user: updatedUser
         });
-
-        // Send email
-        const emailResult = await sendPasswordResetEmail(email, resetToken);
-
-        if (!emailResult.success) {
-            console.error('Failed to send reset email:', emailResult.error);
-            return res.status(500).json({
-                message: "Error sending email. Please try again later."
+       }
+catch (error){
+    console.error("An error has occured updating the User", error)
+}
+    }
+    myInformation = async (req, res) => {
+        try{
+            const token = req.cookies.authToken; 
+            const user = decodeJWT(token);
+// If it doesnt find a token then it will return an error bc its not logged in
+        if (!token) {
+            return res.status(401).json({ 
+                message: 'Access token required' 
             });
         }
 
-        res.status(200).json({
-            message: "The link for the recover password has been sent"
-        });
+            const userRead = await this.dao.read(user.id);
+            res.status(200).json(userRead);
 
-    } catch (error) {
-        console.error("Password reset request error:", error);
+
+        }catch (error){
+            console.error("Error retrieving user data:", error);
         res.status(500).json({
             message: "Internal server error"
         });
-    }
-};    
-// ...existing code...
-changePassword = async (req, res) => {
-    try {
-        const { token, newPassword } = req.body;
-                const users = await this.dao.getAll();
 
-console.log("Received token:", token);
-console.log("User:", users.filter(u=> u.resetPasswordToken == token) )
-const user = users.find(u =>
-    u.resetPasswordToken === token && new Date(u.resetPasswordExpires) > new Date()
-);
-
-        // Find user by reset token
-        if (!user) {
-            return res.status(400).json({
-                message: "Invalid or expired reset token"
-            });
         }
-
-if (
-    newPassword.length < 8 ||
-    !/[A-Z]/.test(newPassword) ||
-    !/[0-9]/.test(newPassword) ||
-    !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)
-) {
-    return res.status(400).json({
-        message: "La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial."
-    });
+    }
 }
 
-        // Hash new password
-        const hashedPassword = await bcrypt.hash(newPassword, 12);
 
-        // Update user password and clear reset token
-        await this.dao.update(user._id, {
-            password: hashedPassword,
-            resetPasswordToken: null,
-            resetPasswordExpires: null
-        });
+function decodeJWT(token) {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload));
 
-        res.status(200).json({
-            message: "Password has been reset successfully"
-        });
-
-    } catch (error) {
-        console.error("Password reset error:", error);
-        res.status(500).json({
-            message: "Internal server error"
-        });
-    }
-};}
+    // Return user object from token payload
+    return {
+      id: decoded.id || decoded.userId || decoded._id,
+      email: decoded.email,
+      // Add other fields your token contains
+    };
+  } catch (error) {
+    console.error("Error decoding JWT:", error);
+    return null;
+  }
+}
 
 /**
  * Export a singleton instance of UserController.

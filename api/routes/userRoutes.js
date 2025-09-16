@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const UserController = require("../controllers/UserController");
-
+router.get("/me", (req, res)=> UserController.myInformation(req, res))
+router.put("/me", (req, res)=> UserController.editMyInfo(req, res))
 /**
  * @route GET /users
  * @description Retrieve all users.
@@ -28,7 +29,6 @@ router.get("/:id", (req, res) => UserController.read(req, res));
 router.post("/", (req, res) => UserController.create(req, res));
 
 router.put("/changePassword", (req, res)=> UserController.changePassword(req, res));
-
 
 /**
  * @route PUT /users/:id
