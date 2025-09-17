@@ -60,8 +60,8 @@ class UserController extends GlobalController {
 
             res.cookie('authToken', token, {
                 httpOnly: true,        // Prevents XSS attacks
-                secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-                sameSite: 'strict',    // CSRF protection
+                secure: true, // HTTPS only in production
+                sameSite: 'none',    // CSRF protection
                 maxAge: 2 * 60 * 60 * 1000  // 2 hours in milliseconds
             });
 
