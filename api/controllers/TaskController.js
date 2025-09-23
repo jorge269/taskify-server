@@ -26,10 +26,8 @@ class TaskController extends GlobalController{
                 title: title, description: description,  date: date, status: status
             })
             
-            res.status(200).json({
-            message: "Task has been successfully updated",
-            task: updatedTask
-        });
+            res.status(200).json(updatedTask);
+
 
         } catch (error){
             console.error("Edit task error:", error);
